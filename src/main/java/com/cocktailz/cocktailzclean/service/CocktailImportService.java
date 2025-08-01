@@ -1,4 +1,3 @@
-// CocktailImportService.java
 package com.cocktailz.cocktailzclean.service;
 
 import com.cocktailz.cocktailzclean.Entity.Cocktail;
@@ -18,6 +17,9 @@ public class CocktailImportService {
     }
 
     public void importCocktails() {
+
+        System.out.println("🚀 importCocktails() gestart");
+
         if (cocktailRepository.count() > 0) {
             System.out.println("Cocktail data al aanwezig, import wordt overgeslagen.");
             return;
@@ -32,8 +34,7 @@ public class CocktailImportService {
                 cocktail.setName(drink.getStrDrink());
                 cocktail.setInstructions(drink.getStrInstructions());
                 cocktail.setImageUrl(drink.getStrDrinkThumb());
-                cocktail.setAlcoholic(String.valueOf("Alcoholic".equalsIgnoreCase(drink.getStrAlcoholic())));
-
+                cocktail.setAlcoholic("Alcoholic".equalsIgnoreCase(drink.getStrAlcoholic()));
                 cocktailRepository.save(cocktail);
                 System.out.println("Cocktail opgeslagen: " + cocktail.getName());
             });

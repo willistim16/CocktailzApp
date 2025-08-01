@@ -15,7 +15,7 @@ public class Cocktail {
     private Long id;
 
     private String name;
-    private String alcoholic;
+    private boolean alcoholic;
     private String instructions;
     private String imageUrl;
 

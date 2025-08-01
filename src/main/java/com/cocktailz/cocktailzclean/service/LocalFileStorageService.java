@@ -10,7 +10,7 @@ import java.nio.file.*;
 import java.util.UUID;
 
 @Service
-public class LocalFileStorageService implements com.cocktailz.service.FileStorageService {
+public class LocalFileStorageService implements com.cocktailz.cocktailzclean.service.FileStorageService {
 
     private final Path fileStorageLocation;
 

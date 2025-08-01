@@ -2,6 +2,7 @@ package com.cocktailz.cocktailzclean;
 
 import com.cocktailz.cocktailzclean.Entity.Role;
 import com.cocktailz.cocktailzclean.Entity.User;
+import com.cocktailz.cocktailzclean.repository.CocktailRepository;
 import com.cocktailz.cocktailzclean.repository.RoleRepository;
 import com.cocktailz.cocktailzclean.repository.UserRepository;
 import com.cocktailz.cocktailzclean.service.CocktailImportService;
@@ -13,6 +14,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.web.client.RestTemplate;
 
 @SpringBootApplication
 @EntityScan(basePackages = "com.cocktailz.cocktailzclean.Entity")
@@ -34,6 +36,11 @@ public class CocktailzCleanApplication {
     }
 
     @Bean
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
+    }
+
+    @Bean
     CommandLineRunner runImporter(CocktailImportService importer) {
         return args -> {
             importer.importCocktails();
@@ -46,6 +53,15 @@ public class CocktailzCleanApplication {
             System.out.println("👥 Aantal users in DB: " + userRepository.count());
         };
     }
+
+    @Bean
+    CommandLineRunner testCocktails(CocktailRepository cocktailRepository) {
+        return args -> {
+            System.out.println("Total cocktails in DB: " + cocktailRepository.count());
+            cocktailRepository.findAll().forEach(c -> System.out.println(c.getName()));
+        };
+    }
+
 
     @Bean
     public CommandLineRunner initialUserSetup(UserRepository userRepository, RoleRepository roleRepository) {

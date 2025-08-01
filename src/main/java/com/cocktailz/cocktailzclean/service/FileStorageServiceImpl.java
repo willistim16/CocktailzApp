@@ -12,7 +12,7 @@ import java.util.UUID;
 
 @Service
 @Primary
-public class FileStorageServiceImpl implements com.cocktailz.service.FileStorageService {
+public class FileStorageServiceImpl implements com.cocktailz.cocktailzclean.service.FileStorageService {
 
     private final Path fileStorageLocation;
 

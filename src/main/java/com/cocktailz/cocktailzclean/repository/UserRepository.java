@@ -1,6 +1,8 @@
 package com.cocktailz.cocktailzclean.repository;
 
 import com.cocktailz.cocktailzclean.Entity.User;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Bean;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
@@ -11,5 +13,3 @@ public interface UserRepository extends JpaRepository<User, Long> {
     boolean existsByEmail(String email);
 
 }
-
-

@@ -6,7 +6,7 @@ import java.util.List;
 
 @Data
 public class CocktailDbResponse {
-    private List<Drink> drinks;
+    private List<DrinkDto> drinks;
 
     @Data
     public static class Drink {

@@ -1,7 +1,7 @@
 package com.cocktailz.cocktailzclean.controller;
 
-import com.cocktailz.cocktailzclean.Entity.User;
-import com.cocktailz.cocktailzclean.Entity.UserProfile;
+import com.cocktailz.cocktailzclean.entity.User;
+import com.cocktailz.cocktailzclean.entity.UserProfile;
 import com.cocktailz.cocktailzclean.repository.UserProfileRepository;
 import com.cocktailz.cocktailzclean.repository.UserRepository;
 import com.cocktailz.cocktailzclean.service.FileStorageService;

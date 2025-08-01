@@ -1,7 +1,7 @@
 // CocktailImportService.java
 package com.cocktailz.cocktailzclean.service;
 
-import com.cocktailz.cocktailzclean.Entity.Cocktail;
+import com.cocktailz.cocktailzclean.entity.Cocktail;
 import com.cocktailz.cocktailzclean.dto.CocktailDbResponse;
 import com.cocktailz.cocktailzclean.repository.CocktailRepository;
 import org.springframework.stereotype.Service;

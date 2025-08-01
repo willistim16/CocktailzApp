@@ -1,6 +1,6 @@
 package com.cocktailz.cocktailzclean.service;
 
-import com.cocktailz.cocktailzclean.Entity.*;
+import com.cocktailz.cocktailzclean.entity.*;
 import com.cocktailz.cocktailzclean.dto.RatingDto;
 import com.cocktailz.cocktailzclean.repository.FavoriteRepository;
 import com.cocktailz.cocktailzclean.repository.RatingRepository;

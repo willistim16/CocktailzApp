@@ -1,4 +1,4 @@
-package com.cocktailz.cocktailzclean.Entity;
+package com.cocktailz.cocktailzclean.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;

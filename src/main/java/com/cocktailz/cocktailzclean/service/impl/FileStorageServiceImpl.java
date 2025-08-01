@@ -1,4 +1,4 @@
-package com.cocktailz.cocktailzclean.service;
+package com.cocktailz.cocktailzclean.service.impl;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Primary;

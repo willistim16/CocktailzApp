@@ -3,7 +3,7 @@ package com.cocktailz.cocktailzclean.service;
 import com.cocktailz.cocktailzclean.dto.AuthResponse;
 import com.cocktailz.cocktailzclean.dto.LoginRequest;
 import com.cocktailz.dto.RegisterRequest;
-import com.cocktailz.cocktailzclean.Entity.User;
+import com.cocktailz.cocktailzclean.entity.User;
 import com.cocktailz.cocktailzclean.repository.UserRepository;
 import com.cocktailz.cocktailzclean.security.jwt.JwtUtil;
 import org.springframework.security.authentication.AuthenticationManager;

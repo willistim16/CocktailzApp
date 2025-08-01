@@ -1,6 +1,6 @@
 package com.cocktailz.cocktailzclean.controller;
 
-import com.cocktailz.cocktailzclean.Entity.User;
+import com.cocktailz.cocktailzclean.entity.User;
 import com.cocktailz.cocktailzclean.dto.FavoriteRequest;
 import com.cocktailz.cocktailzclean.dto.NoteRequest;
 import com.cocktailz.cocktailzclean.dto.RatingRequest;

@@ -1,6 +1,6 @@
 package com.cocktailz.cocktailzclean.Test;
 
-import com.cocktailz.cocktailzclean.Entity.Note;
+import com.cocktailz.cocktailzclean.entity.Note;
 import com.cocktailz.cocktailzclean.repository.NoteRepository;
 import com.cocktailz.cocktailzclean.service.NoteService;
 import org.junit.jupiter.api.Test;

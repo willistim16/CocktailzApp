@@ -1,6 +1,6 @@
 package com.cocktailz.cocktailzclean.controller;
 
-import com.cocktailz.cocktailzclean.Entity.Cocktail;
+import com.cocktailz.cocktailzclean.entity.Cocktail;
 import com.cocktailz.cocktailzclean.repository.CocktailRepository;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,8 +30,9 @@ public class CocktailController {
     }
 
     // 3. Filteren op alcoholic (true of false)
-    @GetMapping("/filter")
-    public List<Cocktail> filterByAlcoholic(@RequestParam boolean alcoholic) {
-        return cocktailRepository.findByAlcoholic(alcoholic);
+    @GetMapping({"/filter"})
+    public List<Cocktail> filterByAlcoholic(@RequestParam String alcoholic) {
+        return this.cocktailRepository.findByAlcoholic(alcoholic);
     }
+
 }

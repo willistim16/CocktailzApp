@@ -1,7 +1,8 @@
 package com.cocktailz.cocktailzclean;
 
-import com.cocktailz.cocktailzclean.Entity.Role;
-import com.cocktailz.cocktailzclean.Entity.User;
+import com.cocktailz.cocktailzclean.entity.Role;
+import com.cocktailz.cocktailzclean.entity.User;
+import com.cocktailz.cocktailzclean.repository.RoleRepository;
 import com.cocktailz.cocktailzclean.repository.UserRepository;
 import com.cocktailz.cocktailzclean.service.CocktailImportService;
 import jakarta.persistence.EntityManagerFactory;
@@ -13,8 +14,8 @@ import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
-@SpringBootApplication
-@EntityScan(basePackages = "com.cocktailz.Entities") // <-- Let op: dit moet matchen met je package
+@SpringBootApplication(scanBasePackages = {"com.cocktailz.cocktailzclean"})
+@EntityScan(basePackages = "com.cocktailz.cocktailzclean.entity")
 @EnableJpaRepositories(basePackages = "com.cocktailz.cocktailzclean.repository")
 public class CocktailzCleanApplication {
     public static void main(String[] args) {
@@ -22,15 +23,20 @@ public class CocktailzCleanApplication {
     }
 
     @Bean
-    CommandLineRunner runner(UserRepository userRepository) {
+    CommandLineRunner runner(UserRepository userRepository, RoleRepository roleRepository) {
         return args -> {
             System.out.println("Aantal users in DB: " + userRepository.count());
+
+            // Eerst check of de rol al bestaat, anders aanmaken en opslaan
+            String roleName = "ROLE_USER";
+            Role role = roleRepository.findByName(roleName)
+                    .orElseGet(() -> roleRepository.save(new Role(null, roleName)));
 
             User user = new User();
             user.setUsername("testuser");
             user.setEmail("test@example.com");
             user.setPassword("secret");
-            user.setRole(new Role(null, "ROLE_USER"));
+            user.setRole(role);  // gekoppelde, persistent Role
 
             userRepository.save(user);
             System.out.println("Nieuwe user opgeslagen!");
@@ -55,4 +61,3 @@ public class CocktailzCleanApplication {
         };
     }
 }
-

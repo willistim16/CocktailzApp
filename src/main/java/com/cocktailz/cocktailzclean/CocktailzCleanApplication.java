@@ -14,8 +14,8 @@ import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
-@SpringBootApplication(scanBasePackages = {"com.cocktailz.cocktailzclean"})
-@EntityScan(basePackages = "com.cocktailz.cocktailzclean.entity")
+@SpringBootApplication
+@EntityScan(basePackages = "com.cocktailz.cocktailzclean.Entity") // <-- Let op: dit moet matchen met je package
 @EnableJpaRepositories(basePackages = "com.cocktailz.cocktailzclean.repository")
 public class CocktailzCleanApplication {
     public static void main(String[] args) {
@@ -23,20 +23,15 @@ public class CocktailzCleanApplication {
     }
 
     @Bean
-    CommandLineRunner runner(UserRepository userRepository, RoleRepository roleRepository) {
+    CommandLineRunner runner(UserRepository userRepository) {
         return args -> {
             System.out.println("Aantal users in DB: " + userRepository.count());
-
-            // Eerst check of de rol al bestaat, anders aanmaken en opslaan
-            String roleName = "ROLE_USER";
-            Role role = roleRepository.findByName(roleName)
-                    .orElseGet(() -> roleRepository.save(new Role(null, roleName)));
 
             User user = new User();
             user.setUsername("testuser");
             user.setEmail("test@example.com");
             user.setPassword("secret");
-            user.setRole(role);  // gekoppelde, persistent Role
+            user.setRole(new Role(null, "ROLE_USER"));
 
             userRepository.save(user);
             System.out.println("Nieuwe user opgeslagen!");
@@ -58,6 +53,35 @@ public class CocktailzCleanApplication {
     CommandLineRunner runImporter(CocktailImportService importer) {
         return args -> {
             importer.importCocktails();
+        };
+    }
+
+    @Bean
+    CommandLineRunner testRepo(UserRepository userRepository) {
+        return args -> {
+            System.out.println("Users in DB: " + userRepository.findAll().size());
+        };
+    }
+
+    @Bean
+    public CommandLineRunner initialUserSetup(UserRepository userRepository, RoleRepository roleRepository) {
+        return args -> {
+            Role userRole = roleRepository.findByName("USER")
+                    .orElseGet(() -> {
+                        Role newRole = new Role(null, "USER");
+                        roleRepository.save(newRole);
+                        return newRole;
+                    });
+
+            if (!userRepository.existsByEmail("admin@example.com")) {
+                User user = new User();
+                user.setUsername("admin");
+                user.setEmail("admin@example.com");
+                user.setPassword("hashedPassword"); // Hash this in real use
+                user.setRole(userRole); // Correctly persisted role
+                userRepository.save(user);
+                System.out.println("✅ Admin user created.");
+            }
         };
     }
 }

@@ -15,8 +15,13 @@ public class Cocktail {
     private Long id;
 
     private String name;
-    private String alcoholic;
+
+    private boolean alcoholic;
+
+    @Column(columnDefinition = "TEXT") // allows very long text
     private String instructions;
+
+    @Column(length = 1024)
     private String imageUrl;
 
     @OneToMany(mappedBy = "cocktail", cascade = CascadeType.ALL)

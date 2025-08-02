@@ -1,8 +1,8 @@
 package com.cocktailz.cocktailzclean.Test;
 
-import com.cocktailz.cocktailzclean.Entity.Cocktail;
-import com.cocktailz.cocktailzclean.Entity.Favorite;
-import com.cocktailz.cocktailzclean.Entity.User;
+import com.cocktailz.cocktailzclean.entity.Cocktail;
+import com.cocktailz.cocktailzclean.entity.Favorite;
+import com.cocktailz.cocktailzclean.entity.User;
 import com.cocktailz.cocktailzclean.repository.CocktailRepository;
 import com.cocktailz.cocktailzclean.repository.FavoriteRepository;
 import com.cocktailz.cocktailzclean.repository.NoteRepository;

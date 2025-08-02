@@ -1,8 +1,8 @@
 package com.cocktailz.cocktailzclean.Test;
 
-import com.cocktailz.cocktailzclean.Entity.Cocktail;
-import com.cocktailz.cocktailzclean.Entity.Rating;
-import com.cocktailz.cocktailzclean.Entity.User;
+import com.cocktailz.cocktailzclean.entity.Cocktail;
+import com.cocktailz.cocktailzclean.entity.Rating;
+import com.cocktailz.cocktailzclean.entity.User;
 import com.cocktailz.cocktailzclean.service.RatingService;
 import com.cocktailz.cocktailzclean.repository.RatingRepository;
 import org.junit.jupiter.api.Test;

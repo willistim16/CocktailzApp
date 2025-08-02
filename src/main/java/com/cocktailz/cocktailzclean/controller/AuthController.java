@@ -1,28 +1,36 @@
 package com.cocktailz.cocktailzclean.controller;
 
-import com.cocktailz.cocktailzclean.dto.LoginRequest;
-import com.cocktailz.dto.RegisterRequest;
-import com.cocktailz.cocktailzclean.service.AuthService;
+import com.cocktailz.cocktailzclean.entity.User;
+import com.cocktailz.cocktailzclean.service.UserService;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/auth")
+@AllArgsConstructor
 public class AuthController {
 
-    private final AuthService authService;
-
-    public AuthController(AuthService authService) {
-        this.authService = authService;
-    }
+    private final UserService userService;
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
-        return ResponseEntity.ok(authService.register(request));
+    public ResponseEntity<?> registerUser(@RequestBody RegisterRequest request) {
+        try {
+            User registeredUser = userService.registerUser(
+                    request.getUsername(), request.getEmail(), request.getPassword()
+            );
+            return ResponseEntity.ok("User geregistreerd: " + registeredUser.getUsername());
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
-    @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
-        return ResponseEntity.ok(authService.login(request));
+    // DTO voor registeren
+    @Data
+    static class RegisterRequest {
+        private String username;
+        private String email;
+        private String password;
     }
 }

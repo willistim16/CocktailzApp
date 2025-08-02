@@ -1,6 +1,6 @@
 package com.cocktailz.cocktailzclean.repository;
 
-import com.cocktailz.cocktailzclean.Entity.Note;
+import com.cocktailz.cocktailzclean.entity.Note;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface NoteRepository extends JpaRepository<Note, Long> {

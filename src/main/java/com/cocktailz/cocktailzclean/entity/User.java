@@ -1,4 +1,4 @@
-package com.cocktailz.cocktailzclean.Entity;
+package com.cocktailz.cocktailzclean.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -30,7 +30,8 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private String password;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "role_id")
     private Role role;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -41,7 +42,7 @@ public class User implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority(role != null ? role.getName() : "USER"));
+        return List.of(new SimpleGrantedAuthority(role != null ? role.getName() : "ROLE_USER"));
     }
 
     @Override

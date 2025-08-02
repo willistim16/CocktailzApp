@@ -1,6 +1,6 @@
 package com.cocktailz.cocktailzclean.controller;
 
-import com.cocktailz.cocktailzclean.Entity.User;
+import com.cocktailz.cocktailzclean.entity.User;
 import com.cocktailz.cocktailzclean.dto.RatingDto;
 import com.cocktailz.cocktailzclean.service.RatingService;
 import org.springframework.http.ResponseEntity;

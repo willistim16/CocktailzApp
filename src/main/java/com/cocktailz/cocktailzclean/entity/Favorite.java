@@ -1,5 +1,6 @@
 package com.cocktailz.cocktailzclean.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -8,10 +9,12 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Favorite {
-    @Id @GeneratedValue
+    @Id
+    @GeneratedValue
     private Long id;
 
     @ManyToOne
+    @JsonIgnore // ✅ to avoid looping back through user → favorites
     private User user;
 
     @ManyToOne

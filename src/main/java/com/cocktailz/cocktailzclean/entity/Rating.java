@@ -1,12 +1,15 @@
 package com.cocktailz.cocktailzclean.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import lombok.*;
 
 @Entity
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class Rating {
@@ -20,10 +23,12 @@ public class Rating {
     private int score;
 
     @ManyToOne
-    @JoinColumn(name = "cocktail_id")
+    @JoinColumn(name = "cocktail_id") // ✅ fixed column name
+    @JsonBackReference
     private Cocktail cocktail;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;  // Make sure you have a `User` entity in your domain
+    @JoinColumn(name = "user_id") // ✅ fixed column name
+    @JsonIgnore // ✅ prevent recursion through user
+    private User user;
 }

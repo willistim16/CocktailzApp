@@ -8,6 +8,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class CocktailImportService {
@@ -15,15 +17,11 @@ public class CocktailImportService {
     private final CocktailRepository cocktailRepository;
     private final RestTemplate restTemplate = new RestTemplate();
 
-    public void importCocktails() {
-        System.out.println("🚀 importCocktails() gestart");
-
+    public void importCocktailsIfEmpty() {
         if (cocktailRepository.count() > 0) {
-            System.out.println("📦 Cocktail data al aanwezig, import wordt overgeslagen.");
+            // Skip import if data already exists
             return;
         }
-
-        int totalImported = 0;
 
         for (char letter = 'a'; letter <= 'z'; letter++) {
             String url = "https://www.thecocktaildb.com/api/json/v1/1/search.php?f=" + letter;
@@ -33,24 +31,38 @@ public class CocktailImportService {
 
                 if (response.getBody() != null && response.getBody().getDrinks() != null) {
                     for (CocktailDbResponse.Drink drink : response.getBody().getDrinks()) {
+                        String drinkName = drink.getStrDrink();
+                        Optional<Cocktail> existing = cocktailRepository.findByName(drinkName);
+
+                        if (existing.isPresent()) continue;
+
                         Cocktail cocktail = new Cocktail();
-                        cocktail.setName(drink.getStrDrink());
-                        cocktail.setInstructions(drink.getStrInstructions());
-                        cocktail.setImageUrl(drink.getStrDrinkThumb());
-                        cocktail.setAlcoholic("Alcoholic".equalsIgnoreCase(drink.getStrAlcoholic()));
+                        cocktail.setName(drinkName);
+                        cocktail.setInstructions(truncate(drink.getStrInstructions(), 2048));
+                        cocktail.setImageUrl(truncate(drink.getStrDrinkThumb(), 1024));
+
+                        String alcoholicStr = drink.getStrAlcoholic();
+                        Boolean alcoholicBool = null;
+                        if (alcoholicStr != null) {
+                            if (alcoholicStr.equalsIgnoreCase("Alcoholic")) {
+                                alcoholicBool = true;
+                            } else if (alcoholicStr.equalsIgnoreCase("Non alcoholic")) {
+                                alcoholicBool = false;
+                            }
+                        }
+                        cocktail.setAlcoholic(alcoholicBool);
 
                         cocktailRepository.save(cocktail);
-                        totalImported++;
-                        System.out.println("✅ Opgeslagen: " + cocktail.getName());
                     }
-                } else {
-                    System.out.println("⚠️ Geen data gevonden voor letter: " + letter);
                 }
             } catch (Exception e) {
-                System.err.println("❌ Fout bij ophalen van letter '" + letter + "': " + e.getMessage());
+                // Consider logging if needed
             }
         }
+    }
 
-        System.out.println("✅ Totaal aantal geïmporteerde cocktails: " + totalImported);
+    private String truncate(String input, int maxLength) {
+        if (input == null) return null;
+        return input.length() <= maxLength ? input : input.substring(0, maxLength);
     }
 }

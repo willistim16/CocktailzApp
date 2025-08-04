@@ -1,38 +1,52 @@
 package com.cocktailz.cocktailzclean.controller;
 
 import com.cocktailz.cocktailzclean.entity.Cocktail;
-import com.cocktailz.cocktailzclean.repository.CocktailRepository;
+import com.cocktailz.cocktailzclean.service.CocktailService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/cocktails")
-@CrossOrigin(origins = "*") // Pas dit aan naar je frontend URL in productie
 public class CocktailController {
 
-    private final CocktailRepository cocktailRepository;
+    private final CocktailService cocktailService;
 
-    public CocktailController(CocktailRepository cocktailRepository) {
-        this.cocktailRepository = cocktailRepository;
+    public CocktailController(CocktailService cocktailService) {
+        this.cocktailService = cocktailService;
     }
 
-    // 1. Alle cocktails ophalen
+    // 1. Get all cocktails
     @GetMapping
     public List<Cocktail> getAllCocktails() {
-        return cocktailRepository.findAll();
+        return cocktailService.getAllCocktails();
     }
 
-    // 2. Zoeken op naam (case-insensitive)
+    // 2. Search by name (case-insensitive)
     @GetMapping("/search")
     public List<Cocktail> searchByName(@RequestParam String name) {
-        return cocktailRepository.findByNameContainingIgnoreCase(name);
+        return cocktailService.searchByName(name);
     }
 
-    // 3. Filteren op alcoholic (true of false)
-    @GetMapping({"/filter"})
-    public List<Cocktail> filterByAlcoholic(@RequestParam String alcoholic) {
-        return this.cocktailRepository.findByAlcoholic(alcoholic);
+    // 3. Filter by alcoholic (Boolean)
+    @GetMapping("/filter")
+    public List<Cocktail> filterByAlcoholic(@RequestParam Boolean alcoholic) {
+        return cocktailService.filterByAlcoholic(alcoholic);
     }
 
+    // 4. Get random cocktails
+    @GetMapping("/random")
+    public ResponseEntity<List<Cocktail>> getRandomCocktails(@RequestParam(defaultValue = "3") int count) {
+        List<Cocktail> randomCocktails = cocktailService.getRandomCocktails(count);
+        return ResponseEntity.ok(randomCocktails);
+    }
+    @GetMapping("/test-random")
+    public ResponseEntity<List<Cocktail>> testRandomCocktails() {
+        List<Cocktail> randomCocktails = cocktailService.getRandomCocktails(3);
+        System.out.println("Random cocktails fetched: " + randomCocktails.size());
+        randomCocktails.forEach(c -> System.out.println(c.getName()));
+        return ResponseEntity.ok(randomCocktails);
+    }
 }
+

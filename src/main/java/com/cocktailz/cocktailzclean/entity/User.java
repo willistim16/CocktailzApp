@@ -40,7 +40,9 @@ public class User implements UserDetails {
     private List<Favorite> favorites;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, optional = true)
+    @JsonIgnore
     private UserProfile userProfile;
+
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     @JsonIgnore // ✅ prevent loop from rating → user → ratings → ...

@@ -1,62 +1,73 @@
 package com.cocktailz.cocktailzclean.service;
 
 import com.cocktailz.cocktailzclean.dto.AuthResponse;
-import com.cocktailz.cocktailzclean.dto.LoginRequest;
-import com.cocktailz.dto.RegisterRequest;
 import com.cocktailz.cocktailzclean.entity.User;
-import com.cocktailz.cocktailzclean.repository.UserRepository;
 import com.cocktailz.cocktailzclean.security.jwt.JwtUtil;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
 public class AuthService {
 
-    private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
     private final AuthenticationManager authenticationManager;
+    private final UserService userService;
 
-    public AuthService(UserRepository userRepository,
-                       PasswordEncoder passwordEncoder,
-                       JwtUtil jwtUtil,
-                       AuthenticationManager authenticationManager) {
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
+    public AuthService(JwtUtil jwtUtil,
+                       AuthenticationManager authenticationManager,
+                       UserService userService) {
         this.jwtUtil = jwtUtil;
         this.authenticationManager = authenticationManager;
+        this.userService = userService;
     }
 
-    public AuthResponse register(RegisterRequest request) {
-        if (userRepository.existsByUsername(request.getUsername())) {
-            throw new RuntimeException("Gebruiker met deze gebruikersnaam bestaat al");
-        }
-        if (userRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("Gebruiker met dit e-mailadres bestaat al");
+    public AuthResponse register(String username, String email, String password) {
+        if (userService.existsByUsername(username)) {
+            throw new IllegalArgumentException("Gebruikersnaam is al in gebruik.");
         }
 
-        User user = new User();
-        user.setUsername(request.getUsername());
-        user.setEmail(request.getEmail());
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        if (userService.existsByEmail(email)) {
+            throw new IllegalArgumentException("E-mailadres is al in gebruik.");
+        }
 
-        userRepository.save(user);
+        // Pass raw password, encoding happens in UserServiceImpl
+        User user = userService.registerUser(username, password, email);
 
         String token = jwtUtil.generateToken(user);
-        return new AuthResponse(token);
-    }
-
-    public AuthResponse login(LoginRequest request) {
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
+        return new AuthResponse(
+                token,
+                user.getId(),
+                user.getUsername(),
+                user.getEmail(),
+                user.getUserProfile() != null ? user.getUserProfile().getProfileImagePath() : null
         );
+    }
 
-        User user = userRepository.findByUsername(request.getUsername())
-                .orElseThrow(() -> new RuntimeException("Gebruiker niet gevonden"));
+    public AuthResponse login(String username, String password) {
+        try {
+            // Authenticate user
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(username, password)
+            );
+        } catch (Exception e) {
+            throw new RuntimeException("Ongeldige gebruikersnaam of wachtwoord");
+        }
+
+        // Fetch user details after successful authentication
+        User user = userService.findByUsername(username);
+        if (user == null) {
+            throw new RuntimeException("Gebruiker niet gevonden");
+        }
 
         String token = jwtUtil.generateToken(user);
-        return new AuthResponse(token);
+
+        return new AuthResponse(
+                token,
+                user.getId(),
+                user.getUsername(),
+                user.getEmail(),
+                user.getUserProfile() != null ? user.getUserProfile().getProfileImagePath() : null
+        );
     }
 }

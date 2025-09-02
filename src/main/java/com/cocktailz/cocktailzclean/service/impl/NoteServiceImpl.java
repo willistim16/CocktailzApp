@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -65,16 +66,22 @@ public class NoteServiceImpl implements NoteService {
                 .filter(f -> f.getUser().getId().equals(user.getId()))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Favorite not found"));
 
-        return favorite.getNotes().stream()
-                .map(n -> {
-                    NoteDto dto = new NoteDto();
-                    dto.setFavoriteId(favorite.getId());
-                    dto.setUserId(n.getUser() != null ? n.getUser().getId() : null);
-                    dto.setContent(n.getContent());
-                    dto.setId(n.getId());
-                    return dto;
-                }).toList();
+        List<NoteDto> dtoList = new ArrayList<>();
+        for (Note note : favorite.getNotes()) {
+            NoteDto dto = new NoteDto();
+            dto.setFavoriteId(favorite.getId());
+            if (note.getUser() != null) {
+                dto.setUserId(note.getUser().getId());
+            } else {
+                dto.setUserId(null);
+            }
+            dto.setContent(note.getContent());
+            dto.setId(note.getId());
+            dtoList.add(dto);
+        }
+        return dtoList;
     }
+
 
     @Override
     @Transactional

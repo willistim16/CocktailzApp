@@ -23,8 +23,17 @@ public class JwtUtil {
 
     public JwtUtil(JwtProperties jwtProperties) {
         this.jwtProperties = jwtProperties;
-        // Zet je secret string om naar een SecretKey (vereist door jjwt 0.11+)
-        this.secretKey = Keys.hmacShaKeyFor(jwtProperties.getSecret().getBytes(StandardCharsets.UTF_8));
+
+        // Ensure the secret key is long enough for HS256 (256 bits or 32 bytes)
+        String secretString = jwtProperties.getSecret();
+        if (secretString == null || secretString.getBytes(StandardCharsets.UTF_8).length < 32) {
+            throw new IllegalArgumentException("JWT secret key must be at least 32 bytes (256 bits) long.");
+        }
+
+        // Convert the secret string to a SecretKey (required by jjwt 0.11+)
+        System.out.println("DEBUG - JWT Secret Key from application.properties: " + secretString);
+
+        this.secretKey = Keys.hmacShaKeyFor(secretString.getBytes(StandardCharsets.UTF_8));
     }
 
     public String extractUsername(String token) {
@@ -54,7 +63,9 @@ public class JwtUtil {
 
     public String generateToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
-        claims.put("role", userDetails.getAuthorities().stream().findFirst().get().getAuthority());
+        // Set the 'role' claim
+        userDetails.getAuthorities().stream().findFirst()
+                .ifPresent(authority -> claims.put("role", authority.getAuthority()));
 
         return Jwts.builder()
                 .setClaims(claims)
@@ -64,7 +75,6 @@ public class JwtUtil {
                 .signWith(secretKey, SignatureAlgorithm.HS256)
                 .compact();
     }
-
 
     public boolean validateToken(String token, UserDetails userDetails) {
         final String username = extractUsername(token);

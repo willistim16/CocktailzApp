@@ -1,4 +1,4 @@
-package com.cocktailz.cocktailzclean.Test;
+package com.cocktailz.cocktailzclean.test;
 
 import com.cocktailz.cocktailzclean.service.impl.FileStorageServiceImpl;
 import org.junit.jupiter.api.AfterEach;

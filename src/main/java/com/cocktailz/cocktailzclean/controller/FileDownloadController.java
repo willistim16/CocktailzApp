@@ -1,13 +1,15 @@
 package com.cocktailz.cocktailzclean.controller;
 
+import com.cocktailz.cocktailzclean.entity.User;
 import com.cocktailz.cocktailzclean.service.FileStorageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.*;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.file.Path;
 
@@ -19,7 +21,17 @@ public class FileDownloadController {
     private final FileStorageService fileStorageService;
 
     @GetMapping("/{filename:.+}")
-    public ResponseEntity<Resource> getFile(@PathVariable String filename) throws MalformedURLException {
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Resource> getFile(
+            @PathVariable String filename,
+            @AuthenticationPrincipal User user
+    ) throws MalformedURLException {
+
+        // ✅ Controleer of de gevraagde file overeenkomt met de ingelogde gebruiker
+        if (!filename.equals(user.getProfileImagePath())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
         Path filePath = fileStorageService.getFilePath(filename);
         Resource resource = new UrlResource(filePath.toUri());
 

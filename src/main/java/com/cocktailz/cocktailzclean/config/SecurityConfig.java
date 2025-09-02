@@ -32,6 +32,16 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/cocktails/**").permitAll()
+                        .requestMatchers("/api/notes/**").permitAll()
+                        .requestMatchers("/api/categories").permitAll()
+                        .requestMatchers("/api/glasses").permitAll()
+                        .requestMatchers("/api/cocktails/random/**").permitAll()
+                        .requestMatchers(
+                                "/api/auth/reset-password-request",
+                                "/api/auth/reset-password"
+                        ).permitAll()
+                        .requestMatchers("/api/test-email").permitAll()
+                        .requestMatchers("/api/favorites/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);

@@ -7,6 +7,6 @@ import lombok.Data;
 @Data
 public class RatingRequest {
     @Min(1)
-    @Max(10)
+    @Max(5)
     private int score;
 }

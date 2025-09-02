@@ -1,12 +1,14 @@
 package com.cocktailz.cocktailzclean.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -36,40 +38,42 @@ public class User implements UserDetails {
     private Role role;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore // ✅ same for favorites
-    private List<Favorite> favorites;
+    @JsonManagedReference(value = "user-favorites")
+    private List<Favorite> favorites = new ArrayList<>();
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, optional = true)
     @JsonIgnore
     private UserProfile userProfile;
 
-
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    @JsonIgnore // ✅ prevent loop from rating → user → ratings → ...
-    private List<Rating> ratings;
+    @JsonIgnore
+    private List<Rating> ratings = new ArrayList<>();
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference(value = "user-notes")
+    private List<Note> notes = new ArrayList<>();
+
+    // Extra methode om profileImagePath veilig op te halen
+    public String getProfileImagePath() {
+        return userProfile != null ? userProfile.getProfileImagePath() : null;
+    }
+
+
+    // Implementatie van UserDetails
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(role != null ? role.getName() : "ROLE_USER"));
     }
 
     @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
+    public boolean isAccountNonExpired() { return true; }
 
     @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
+    public boolean isAccountNonLocked() { return true; }
 
     @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
+    public boolean isCredentialsNonExpired() { return true; }
 
     @Override
-    public boolean isEnabled() {
-        return true;
-    }
+    public boolean isEnabled() { return true; }
 }

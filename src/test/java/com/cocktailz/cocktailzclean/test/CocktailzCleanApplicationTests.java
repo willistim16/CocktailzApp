@@ -1,4 +1,4 @@
-package com.cocktailz.cocktailzclean.Test;
+package com.cocktailz.cocktailzclean.test;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

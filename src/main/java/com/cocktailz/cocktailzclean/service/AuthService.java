@@ -1,11 +1,17 @@
 package com.cocktailz.cocktailzclean.service;
 
 import com.cocktailz.cocktailzclean.dto.AuthResponse;
+import com.cocktailz.cocktailzclean.entity.PasswordResetToken;
 import com.cocktailz.cocktailzclean.entity.User;
+import com.cocktailz.cocktailzclean.repository.PasswordResetTokenRepository;
 import com.cocktailz.cocktailzclean.security.jwt.JwtUtil;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Service
 public class AuthService {
@@ -13,30 +19,37 @@ public class AuthService {
     private final JwtUtil jwtUtil;
     private final AuthenticationManager authenticationManager;
     private final UserService userService;
+    private final PasswordResetTokenRepository tokenRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final EmailService emailService;
 
     public AuthService(JwtUtil jwtUtil,
                        AuthenticationManager authenticationManager,
-                       UserService userService) {
+                       UserService userService,
+                       PasswordResetTokenRepository tokenRepository,
+                       PasswordEncoder passwordEncoder,
+                       EmailService emailService) {
         this.jwtUtil = jwtUtil;
         this.authenticationManager = authenticationManager;
         this.userService = userService;
+        this.tokenRepository = tokenRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.emailService = emailService;
     }
 
     public AuthResponse register(String username, String email, String password) {
         if (userService.existsByUsername(username)) {
             throw new IllegalArgumentException("Gebruikersnaam is al in gebruik.");
         }
-
         if (userService.existsByEmail(email)) {
             throw new IllegalArgumentException("E-mailadres is al in gebruik.");
         }
 
-        // Pass raw password, encoding happens in UserServiceImpl
-        User user = userService.registerUser(username, password, email);
+        User user = userService.registerUser(username, email, password);
 
-        String token = jwtUtil.generateToken(user);
+        String jwt = jwtUtil.generateToken(user);
         return new AuthResponse(
-                token,
+                jwt,
                 user.getId(),
                 user.getUsername(),
                 user.getEmail(),
@@ -46,7 +59,6 @@ public class AuthService {
 
     public AuthResponse login(String username, String password) {
         try {
-            // Authenticate user
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(username, password)
             );
@@ -54,20 +66,58 @@ public class AuthService {
             throw new RuntimeException("Ongeldige gebruikersnaam of wachtwoord");
         }
 
-        // Fetch user details after successful authentication
         User user = userService.findByUsername(username);
-        if (user == null) {
-            throw new RuntimeException("Gebruiker niet gevonden");
-        }
 
-        String token = jwtUtil.generateToken(user);
-
+        String jwt = jwtUtil.generateToken(user);
         return new AuthResponse(
-                token,
+                jwt,
                 user.getId(),
                 user.getUsername(),
                 user.getEmail(),
                 user.getUserProfile() != null ? user.getUserProfile().getProfileImagePath() : null
         );
+    }
+
+    // -----------------------
+    // Password reset
+    // -----------------------
+    public void sendResetEmail(String email) {
+        User user;
+        try {
+            user = userService.findByEmail(email);
+        } catch (RuntimeException e) {
+            // avoid revealing user existence
+            return;
+        }
+
+        String token = UUID.randomUUID().toString();
+        PasswordResetToken resetToken = new PasswordResetToken();
+        resetToken.setToken(token);
+        resetToken.setUser(user);
+        resetToken.setExpiryDate(LocalDateTime.now().plusHours(1));
+        tokenRepository.save(resetToken);
+
+        String resetLink = "http://frontend-url/reset-password?token=" + token;
+
+        emailService.sendEmail(
+                user.getEmail(),
+                "Wachtwoord reset",
+                "Klik op deze link om je wachtwoord te resetten: " + resetLink
+        );
+    }
+
+    public void resetPassword(String token, String newPassword) {
+        PasswordResetToken resetToken = tokenRepository.findByToken(token)
+                .orElseThrow(() -> new RuntimeException("Ongeldige of verlopen token"));
+
+        if (resetToken.getExpiryDate().isBefore(LocalDateTime.now())) {
+            throw new RuntimeException("Token is verlopen");
+        }
+
+        User user = resetToken.getUser();
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userService.updateUser(user);
+
+        tokenRepository.delete(resetToken);
     }
 }

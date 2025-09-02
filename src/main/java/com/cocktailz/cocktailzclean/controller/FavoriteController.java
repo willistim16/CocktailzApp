@@ -1,60 +1,50 @@
 package com.cocktailz.cocktailzclean.controller;
 
-import com.cocktailz.cocktailzclean.entity.User;
 import com.cocktailz.cocktailzclean.dto.FavoriteRequest;
-import com.cocktailz.cocktailzclean.dto.NoteRequest;
-import com.cocktailz.cocktailzclean.dto.RatingRequest;
+import com.cocktailz.cocktailzclean.dto.FavoriteResponseDto;
+import com.cocktailz.cocktailzclean.entity.Favorite;
+import com.cocktailz.cocktailzclean.entity.User;
 import com.cocktailz.cocktailzclean.service.FavoriteService;
-import jakarta.validation.Valid;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/favorites")
+@PreAuthorize("isAuthenticated()")
 public class FavoriteController {
-
     private final FavoriteService favoriteService;
 
     public FavoriteController(FavoriteService favoriteService) {
         this.favoriteService = favoriteService;
     }
 
-    @PostMapping
-    @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<?> addFavorite(@AuthenticationPrincipal User user,
-                                         @Valid @RequestBody FavoriteRequest request) {
-        return ResponseEntity.ok(favoriteService.addFavorite(user, request));
+    @GetMapping
+    public List<FavoriteResponseDto> getFavorites(@AuthenticationPrincipal User user) {
+        return favoriteService.getFavoritesByUser(user);
     }
 
-    @GetMapping
-    @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<?> getFavorites(@AuthenticationPrincipal User user) {
-        return ResponseEntity.ok(favoriteService.getFavorites(user));
+    @GetMapping("/{id}")
+    public FavoriteResponseDto getFavorite(@PathVariable Long id, @AuthenticationPrincipal User user) {
+        Favorite favorite = favoriteService.getFavoriteById(id)
+                .orElseThrow(() -> new RuntimeException("Favorite not found"));
+        // Optioneel extra check: favoriet hoort bij deze user
+        if (!favorite.getUser().getId().equals(user.getId())) {
+            throw new RuntimeException("Unauthorized access to favorite");
+        }
+        return favoriteService.mapToDto(favorite);
     }
 
     @DeleteMapping("/{cocktailId}")
-    @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<?> removeFavorite(@AuthenticationPrincipal User user,
-                                            @PathVariable Long cocktailId) {
-        favoriteService.removeFavorite(user, cocktailId);
-        return ResponseEntity.noContent().build();
+    public void deleteFavorite(@AuthenticationPrincipal User user, @PathVariable Long cocktailId) {
+        favoriteService.deleteFavorite(user, cocktailId);
     }
 
-    @PostMapping("/{cocktailId}/note")
-    @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<?> addOrUpdateNote(@AuthenticationPrincipal User user,
-                                             @PathVariable Long cocktailId,
-                                             @Valid @RequestBody NoteRequest request) {
-        return ResponseEntity.ok(favoriteService.addOrUpdateNote(user, cocktailId, request));
-    }
-
-    @PostMapping("/{cocktailId}/rating")
-    @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<?> addOrUpdateRating(@AuthenticationPrincipal User user,
-                                               @PathVariable Long cocktailId,
-                                               @Valid @RequestBody RatingRequest request) {
-        return ResponseEntity.ok(favoriteService.addOrUpdateRating(user, cocktailId, request));
+    @PostMapping
+    public FavoriteResponseDto addFavorite(@AuthenticationPrincipal User user, @RequestBody FavoriteRequest request) {
+        Favorite fav = favoriteService.addFavoriteByCocktailId(user, request.getCocktailId());
+        return favoriteService.mapToDto(fav);
     }
 }

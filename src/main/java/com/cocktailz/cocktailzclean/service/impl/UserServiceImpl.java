@@ -3,35 +3,46 @@ package com.cocktailz.cocktailzclean.service.impl;
 import com.cocktailz.cocktailzclean.entity.User;
 import com.cocktailz.cocktailzclean.repository.UserRepository;
 import com.cocktailz.cocktailzclean.service.UserService;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@Transactional
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
 
-    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserServiceImpl(UserRepository userRepository) {
         this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
-    public User registerUser(String username, String rawPassword, String email) {
+    public User registerUser(String username, String email, String encodedPassword) {
         User user = new User();
         user.setUsername(username);
         user.setEmail(email);
-        user.setPassword(passwordEncoder.encode(rawPassword)); // encode here
+        user.setPassword(encodedPassword);
 
         return userRepository.save(user);
     }
 
     @Override
     public User findByUsername(String username) {
-        return userRepository.findByUsername(username).orElse(null);
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Gebruiker niet gevonden: " + username));
+    }
+
+    @Override
+    public User findByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Gebruiker niet gevonden met email: " + email));
+    }
+
+    @Override
+    public void updateUser(User user) {
+        userRepository.save(user);
     }
 
     @Override

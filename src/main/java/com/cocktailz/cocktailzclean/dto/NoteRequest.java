@@ -7,4 +7,6 @@ import lombok.Data;
 public class NoteRequest {
     @NotBlank
     private String content;
+
+    private Long favoriteId;
 }

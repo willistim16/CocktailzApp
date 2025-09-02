@@ -12,6 +12,7 @@ import lombok.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Rating {
 
     @Id
@@ -20,15 +21,15 @@ public class Rating {
 
     @Min(1)
     @Max(10)
-    private int score;
+    private int score; // previously score -> use getScore()
 
     @ManyToOne
-    @JoinColumn(name = "cocktail_id") // ✅ fixed column name
+    @JoinColumn(name = "cocktail_id")
     @JsonBackReference
     private Cocktail cocktail;
 
     @ManyToOne
-    @JoinColumn(name = "user_id") // ✅ fixed column name
-    @JsonIgnore // ✅ prevent recursion through user
+    @JoinColumn(name = "user_id")
+    @JsonIgnore
     private User user;
 }

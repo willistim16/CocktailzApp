@@ -1,8 +1,9 @@
 package com.cocktailz.cocktailzclean.controller;
 
-import com.cocktailz.cocktailzclean.entity.Cocktail;
+import com.cocktailz.cocktailzclean.dto.CocktailDto;
 import com.cocktailz.cocktailzclean.service.CocktailService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,36 +18,49 @@ public class CocktailController {
         this.cocktailService = cocktailService;
     }
 
-    // 1. Get all cocktails
+    @GetMapping("/home-random")
+    public ResponseEntity<List<CocktailDto>> getHomeRandomCocktails() {
+        return ResponseEntity.ok(cocktailService.getRandomCocktailsDto(3));
+    }
+
     @GetMapping
-    public List<Cocktail> getAllCocktails() {
-        return cocktailService.getAllCocktails();
+    @PreAuthorize("isAuthenticated()")
+    public List<CocktailDto> getAllCocktails() {
+        return cocktailService.getAllCocktailsDto();
     }
 
-    // 2. Search by name (case-insensitive)
     @GetMapping("/search")
-    public List<Cocktail> searchByName(@RequestParam String name) {
-        return cocktailService.searchByName(name);
+    @PreAuthorize("isAuthenticated()")
+    public List<CocktailDto> searchByName(@RequestParam String name) {
+        return cocktailService.searchByNameDto(name);
     }
 
-    // 3. Filter by alcoholic (Boolean)
+    @GetMapping("/search/by-ingredient")
+    @PreAuthorize("isAuthenticated()")
+    public List<CocktailDto> searchByIngredient(@RequestParam String ingredient) {
+        return cocktailService.findByIngredientDto(ingredient);
+    }
+
     @GetMapping("/filter")
-    public List<Cocktail> filterByAlcoholic(@RequestParam Boolean alcoholic) {
-        return cocktailService.filterByAlcoholic(alcoholic);
+    @PreAuthorize("isAuthenticated()")
+    public List<CocktailDto> filterCocktails(
+            @RequestParam(required = false) Boolean alcoholic,
+            @RequestParam(required = false) String category,
+            @RequestParam(required = false) String glass
+    ) {
+        return cocktailService.filterCocktailsDto(alcoholic, category, glass);
     }
 
-    // 4. Get random cocktails
     @GetMapping("/random")
-    public ResponseEntity<List<Cocktail>> getRandomCocktails(@RequestParam(defaultValue = "3") int count) {
-        List<Cocktail> randomCocktails = cocktailService.getRandomCocktails(count);
-        return ResponseEntity.ok(randomCocktails);
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<List<CocktailDto>> getRandomCocktails(@RequestParam(defaultValue = "3") int count) {
+        return ResponseEntity.ok(cocktailService.getRandomCocktailsDto(count));
     }
-    @GetMapping("/test-random")
-    public ResponseEntity<List<Cocktail>> testRandomCocktails() {
-        List<Cocktail> randomCocktails = cocktailService.getRandomCocktails(3);
-        System.out.println("Random cocktails fetched: " + randomCocktails.size());
-        randomCocktails.forEach(c -> System.out.println(c.getName()));
-        return ResponseEntity.ok(randomCocktails);
+
+    @GetMapping("/{id}")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<CocktailDto> getCocktailById(@PathVariable Long id) {
+        CocktailDto dto = cocktailService.getCocktailByIdDto(id);
+        return dto != null ? ResponseEntity.ok(dto) : ResponseEntity.notFound().build();
     }
 }
-

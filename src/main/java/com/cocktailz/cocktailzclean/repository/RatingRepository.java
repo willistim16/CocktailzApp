@@ -12,4 +12,6 @@ public interface RatingRepository extends JpaRepository<Rating, Long> {
     List<Rating> findByCocktail(Cocktail cocktail);
 
     Optional<Rating> findByUserAndCocktail(User user, Cocktail cocktail);
+
+    List<Rating> findByUser(User user);
 }

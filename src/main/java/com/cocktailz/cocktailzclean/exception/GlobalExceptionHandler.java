@@ -28,6 +28,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ErrorResponse> handleAccessDenied(AccessDeniedException ex) {
+        logger.warn("Toegang geweigerd: {}", ex.getMessage());
         return new ResponseEntity<>(
                 new ErrorResponse("Toegang geweigerd", HttpStatus.FORBIDDEN.value()),
                 HttpStatus.FORBIDDEN
@@ -41,6 +42,14 @@ public class GlobalExceptionHandler {
             errors.put(error.getField(), error.getDefaultMessage());
         }
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(DuplicateFavoriteException.class)
+    public ResponseEntity<ErrorResponse> handleDuplicateFavorite(DuplicateFavoriteException ex) {
+        return new ResponseEntity<>(
+                new ErrorResponse(ex.getMessage(), HttpStatus.CONFLICT.value()),
+                HttpStatus.CONFLICT
+        );
     }
 
     @ExceptionHandler(Exception.class)
@@ -64,6 +73,5 @@ public class GlobalExceptionHandler {
             this.status = status;
             this.timestamp = System.currentTimeMillis();
         }
-
     }
 }

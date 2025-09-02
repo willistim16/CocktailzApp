@@ -21,16 +21,27 @@ public class UserController {
     // Alleen voor admins: alle gebruikers ophalen
     @GetMapping
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public List<User> getAllUsers() {
-        return userService.getAllUsers(); // nieuw service method
+    public List<UserResponse> getAllUsers() {
+        return userService.getAllUsers().stream()
+                .map(user -> new UserResponse(
+                        user.getId(),
+                        user.getUsername(),
+                        user.getEmail(),
+                        user.getUserProfile() != null ? user.getUserProfile().getProfileImagePath() : null))
+                .toList();
     }
 
-    // Alleen voor admins: gebruiker ophalen op basis van username
-    @GetMapping("/{username}")
+    @GetMapping("/{username}/info")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<User> getUserByUsername(@PathVariable String username) {
+    public ResponseEntity<UserResponse> getUserByUsername(@PathVariable String username) {
         User user = userService.findByUsername(username);
-        return ResponseEntity.ok(user);
+        UserResponse response = new UserResponse(
+                user.getId(),
+                user.getUsername(),
+                user.getEmail(),
+                user.getUserProfile() != null ? user.getUserProfile().getProfileImagePath() : null
+        );
+        return ResponseEntity.ok(response);
     }
 
     // Voor ingelogde gebruiker: eigen profielgegevens ophalen

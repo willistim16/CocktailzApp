@@ -92,11 +92,9 @@ class AuthServiceTest {
         user.setUsername(username);
         user.setId(1L);
 
-        // Mock UserService and JWT
         when(userService.findByUsername(username)).thenReturn(user);
         when(jwtUtil.generateToken(user)).thenReturn("jwt-token");
 
-        // FIX: Mock AuthenticationManager to return a valid Authentication object
         Authentication auth = mock(Authentication.class);
         when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
                 .thenReturn(auth);

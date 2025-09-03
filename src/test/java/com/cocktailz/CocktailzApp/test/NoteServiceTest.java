@@ -52,7 +52,6 @@ class NoteServiceImplTest {
         noteDto.setContent("Test note");
     }
 
-    // ---------------------- addOrUpdateNote ----------------------
     @Test
     void testAddOrUpdateNote_NewNote() {
         when(favoriteRepository.findById(favorite.getId())).thenReturn(Optional.of(favorite));
@@ -93,7 +92,6 @@ class NoteServiceImplTest {
                 () -> noteService.addOrUpdateNote(user, noteDto, 999L));
     }
 
-    // ---------------------- deleteNoteById ----------------------
     @Test
     void testDeleteNoteById() {
         when(noteRepository.findById(note.getId())).thenReturn(Optional.of(note));
@@ -109,7 +107,6 @@ class NoteServiceImplTest {
 
     @Test
     void deleteNoteById_ShouldThrow_WhenNoteBelongsToAnotherUser() {
-        // Arrange
         User loggedInUser = new User();
         loggedInUser.setId(1L);
 
@@ -118,17 +115,14 @@ class NoteServiceImplTest {
 
         Note note = new Note();
         note.setId(99L);
-        note.setUser(otherUser); // note owned by someone else
+        note.setUser(otherUser);
 
         when(noteRepository.findById(99L)).thenReturn(Optional.of(note));
 
-        // Act + Assert
         assertThrows(ResponseStatusException.class,
                 () -> noteService.deleteNoteById(loggedInUser, 99L));
     }
 
-
-    // ---------------------- getNotesForFavorite ----------------------
     @Test
     void testGetNotesForFavorite() {
         favorite.setNotes(List.of(note));
@@ -141,7 +135,7 @@ class NoteServiceImplTest {
 
     @Test
     void getNotesForFavorite_NoteWithUser() {
-        favorite.setNotes(List.of(note)); // note.user != null
+        favorite.setNotes(List.of(note));
         when(favoriteRepository.findById(favorite.getId())).thenReturn(Optional.of(favorite));
 
         List<NoteDto> result = noteService.getNotesForFavorite(user, favorite.getId());
@@ -151,7 +145,7 @@ class NoteServiceImplTest {
 
     @Test
     void getNotesForFavorite_EmptyNotes() {
-        favorite.setNotes(List.of()); // empty list
+        favorite.setNotes(List.of());
         when(favoriteRepository.findById(favorite.getId())).thenReturn(Optional.of(favorite));
 
         List<NoteDto> result = noteService.getNotesForFavorite(user, favorite.getId());
@@ -177,7 +171,6 @@ class NoteServiceImplTest {
 
     @Test
     void testGetNotesForFavorite_ShouldThrow_WhenFavoriteBelongsToAnotherUser() {
-        // Arrange
         User loggedInUser = new User();
         loggedInUser.setId(1L);
 
@@ -186,16 +179,14 @@ class NoteServiceImplTest {
 
         Favorite favorite = new Favorite();
         favorite.setId(10L);
-        favorite.setUser(otherUser); // belongs to someone else
+        favorite.setUser(otherUser);
         favorite.setNotes(List.of(new Note()));
 
         when(favoriteRepository.findById(10L)).thenReturn(Optional.of(favorite));
 
-        // Act + Assert
         assertThrows(ResponseStatusException.class,
                 () -> noteService.getNotesForFavorite(loggedInUser, 10L));
     }
-
 
     @Test
     void testGetNotesForFavorite_NotFound() {
@@ -203,7 +194,6 @@ class NoteServiceImplTest {
         assertThrows(ResponseStatusException.class, () -> noteService.getNotesForFavorite(user, favorite.getId()));
     }
 
-    // ---------------------- getNotesForUser ----------------------
     @Test
     void testGetNotesForUser() {
         when(noteRepository.findByUser(user)).thenReturn(List.of(note));
@@ -211,7 +201,6 @@ class NoteServiceImplTest {
         assertEquals(1, result.size());
     }
 
-    // ---------------------- getNoteById ----------------------
     @Test
     void testGetNoteById() {
         when(noteRepository.findById(note.getId())).thenReturn(Optional.of(note));

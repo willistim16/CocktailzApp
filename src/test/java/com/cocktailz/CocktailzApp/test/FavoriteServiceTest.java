@@ -64,30 +64,23 @@ class FavoriteServiceImplTest {
         }
     }
 
-    // --- getFavoritesByUser ---
     @Test
     void testGetFavoritesByUser() {
-        // Arrange: mock repository to return either a favorite or an empty list
-        when(favoriteRepository.findByUserWithNotes(user)).thenReturn(List.of(favorite)); // or List.of() for empty
+        when(favoriteRepository.findByUserWithNotes(user)).thenReturn(List.of(favorite));
 
-        // Act: call the service
         List<FavoriteResponseDto> result = favoriteService.getFavoritesByUser(user);
 
-        // Assert: safely check the size
         assertNotNull(result, "Result should not be null");
         int favoriteCount = result.size();
         assertTrue(favoriteCount == 1 || favoriteCount == 0, "Favorites size should be 0 or 1");
 
-        // If there is a favorite, check its details
         if (!result.isEmpty()) {
             assertEquals("Mojito", result.get(0).getCocktailName());
         }
 
-        // Verify repository interaction
         verify(favoriteRepository, times(1)).findByUserWithNotes(user);
     }
 
-    // --- getFavoriteById ---
     @Test
     void testGetFavoriteById_Found() {
         when(favoriteRepository.findById(100L)).thenReturn(Optional.of(favorite));
@@ -107,7 +100,6 @@ class FavoriteServiceImplTest {
         assertFalse(result.isPresent());
     }
 
-    // --- getFavoriteByUserAndCocktailId ---
     @Test
     void testGetFavoriteByUserAndCocktailId_Found() {
         when(favoriteRepository.findByUserAndCocktail_Id(user, 10L)).thenReturn(Optional.of(favorite));
@@ -127,7 +119,6 @@ class FavoriteServiceImplTest {
         assertFalse(result.isPresent());
     }
 
-    // --- deleteFavorite ---
     @Test
     void testDeleteFavorite_Found() {
         when(favoriteRepository.findByUserAndCocktail_Id(user, 10L)).thenReturn(Optional.of(favorite));
@@ -146,7 +137,6 @@ class FavoriteServiceImplTest {
         verify(favoriteRepository, never()).delete(any());
     }
 
-    // --- addFavoriteByCocktailId ---
     @Test
     void testAddFavoriteByCocktailId_NewFavorite() {
         when(cocktailRepository.findById(10L)).thenReturn(Optional.of(cocktail));
@@ -162,14 +152,12 @@ class FavoriteServiceImplTest {
 
     @Test
     void testAddFavoriteByCocktailId_AlreadyExists() {
-        // Mock repository to simulate favorite already exists
         when(cocktailRepository.findById(favorite.getCocktail().getId()))
                 .thenReturn(Optional.of(cocktail));
 
         when(favoriteRepository.existsByUserAndCocktail_Id(user, favorite.getCocktail().getId()))
                 .thenReturn(true);
 
-        // Verify exception is thrown
         DuplicateFavoriteException exception = assertThrows(DuplicateFavoriteException.class, () -> {
             favoriteService.addFavoriteByCocktailId(user, favorite.getCocktail().getId());
         });
@@ -199,7 +187,6 @@ class FavoriteServiceImplTest {
                 () -> favoriteService.addFavoriteByCocktailId(user, 10L));
     }
 
-    // --- mapToDto ---
     @Test
     void testMapToDto_Normal() {
         FavoriteResponseDto dto = favoriteService.mapToDto(favorite);
@@ -215,7 +202,6 @@ class FavoriteServiceImplTest {
         assertNull(dto);
     }
 
-    // --- mapToDto edge cases ---
     @Test
     void testMapToDto_NullRating() {
         favorite.setRating(null);
@@ -223,7 +209,7 @@ class FavoriteServiceImplTest {
         assertNotNull(dto);
         assertEquals(100L, dto.getId());
         assertEquals("Mojito", dto.getCocktailName());
-        assertNull(dto.getRating()); // rating is null
+        assertNull(dto.getRating());
     }
 
     @Test
@@ -243,7 +229,7 @@ class FavoriteServiceImplTest {
 
     @Test
     void testMapToDto_EmptyNotes() {
-        favorite.getNotes().clear(); // no notes
+        favorite.getNotes().clear();
         FavoriteResponseDto dto = favoriteService.mapToDto(favorite);
         assertNotNull(dto);
         assertNotNull(dto.getNotes());
@@ -252,7 +238,7 @@ class FavoriteServiceImplTest {
 
     @Test
     void testMapToDto_NullNotesList() {
-        favorite.setNotes(null); // notes is null
+        favorite.setNotes(null);
         FavoriteResponseDto dto = favoriteService.mapToDto(favorite);
         assertNotNull(dto);
         assertNotNull(dto.getNotes());

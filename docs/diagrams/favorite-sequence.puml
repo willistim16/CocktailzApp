@@ -1,0 +1,16 @@
+@startuml
+actor User
+User -> FavoriteController: addFavorite(cocktailId, principal)
+FavoriteController -> FavoriteService: getUserByPrincipal(principal)
+FavoriteService -> FavoriteRepository: save(favorite)
+FavoriteRepository --> FavoriteService: Favorite
+FavoriteService --> FavoriteController: Success
+FavoriteController --> User: 201 CREATED
+
+User -> FavoriteController: getFavorites(principal)
+FavoriteController -> FavoriteService: getUserFavorites(user)
+FavoriteService -> FavoriteRepository: findByUser(user)
+FavoriteRepository --> FavoriteService: List<Favorite>
+FavoriteService --> FavoriteController: List<Favorite>
+FavoriteController --> User: 200 OK
+@enduml

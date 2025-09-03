@@ -13,18 +13,18 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @SpringBootApplication
-@EntityScan(basePackages = "com.cocktailz.cocktailzclean.entity")
+@EntityScan(basePackages = "com.cocktailz.cocktailzApp.entity")
 @EnableJpaRepositories(basePackages = "com.cocktailz.CocktailzApp.repository")
-public class CocktailzCleanApplication {
+public class CocktailzAppApplication {
 
     private final CocktailImportService importService;
 
-    public CocktailzCleanApplication(CocktailImportService importService) {
+    public CocktailzAppApplication(CocktailImportService importService) {
         this.importService = importService;
     }
 
     public static void main(String[] args) {
-        SpringApplication.run(CocktailzCleanApplication.class, args);
+        SpringApplication.run(CocktailzAppApplication.class, args);
     }
 
     @Bean

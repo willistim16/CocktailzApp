@@ -1,0 +1,9 @@
+@startuml
+actor User
+User -> RatingController: addRating(cocktailId, request, principal)
+RatingController -> RatingService: getUserByPrincipal(principal)
+RatingService -> RatingRepository: save(rating)
+RatingRepository --> RatingService: Rating
+RatingService --> RatingController: Success
+RatingController --> User: 201 CREATED
+@enduml

@@ -1,0 +1,12 @@
+package com.cocktailz.CocktailzApp.dto;
+
+import jakarta.validation.constraints.NotBlank;
+import lombok.Data;
+
+@Data
+public class NoteRequest {
+    @NotBlank
+    private String content;
+
+    private Long favoriteId;
+}

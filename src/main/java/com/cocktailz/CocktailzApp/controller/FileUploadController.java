@@ -1,0 +1,45 @@
+package com.cocktailz.CocktailzApp.controller;
+
+import com.cocktailz.CocktailzApp.entity.User;
+import com.cocktailz.CocktailzApp.entity.UserProfile;
+import com.cocktailz.CocktailzApp.repository.UserProfileRepository;
+import com.cocktailz.CocktailzApp.repository.UserRepository;
+import com.cocktailz.CocktailzApp.service.FileStorageService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+
+@RestController
+@RequestMapping("/api/files")
+@RequiredArgsConstructor
+public class FileUploadController {
+
+    private final FileStorageService fileStorageService;
+    private final UserRepository userRepository;
+    private final UserProfileRepository userProfileRepository;
+
+    @PostMapping("/upload")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<?> uploadProfileImage(
+            @RequestParam("file") MultipartFile file,
+            @AuthenticationPrincipal User user
+    ) throws IOException {
+        String filename = fileStorageService.storeFile(file);
+
+        UserProfile profile = user.getUserProfile();
+        if (profile == null) {
+            profile = new UserProfile();
+            profile.setUser(user);
+        }
+
+        profile.setProfileImagePath(filename);
+        userProfileRepository.save(profile);
+
+        return ResponseEntity.ok("Bestand succesvol geüpload als: " + filename);
+    }
+}

@@ -1,0 +1,86 @@
+@startuml
+!define Table(name,desc) class name as "desc" << (T,#FFAAAA) >>
+
+' Tabellen
+Table(User, "User") {
+    +id : Long
+    +username : String
+    +email : String
+    +password : String
+    +role : Role
+    +profile : UserProfile
+    +favorites : List<Favorite>
+    +ratings : List<Rating>
+    +notes : List<Note>
+}
+
+Table(UserProfile, "UserProfile") {
+    +id : Long
+    +imageUrl : String
+    +bio: String
+    +preferences : UserPreference
+}
+
+Table(UserPreference, "UserPreference") {
+    +id : Long
+    +theme : String
+    +alcoholFreeOnly : Boolean
+}
+
+Table(Role, "Role") {
+    +id : Long
+    +name : String
+    +users : List<User>
+}
+
+Table(Cocktail, "Cocktail") {
+    +id : Long
+    +name : String
+    +alcoholic : Boolean
+    +category : String
+    +instructions : String
+    +ingredients : String
+    +imageUrl : String
+    +ratings : List<Rating>
+    +notes : List<Note>
+}
+
+Table(Favorite, "Favorite") {
+    +id : Long
+    +user : User
+    +cocktail : Cocktail
+}
+
+Table(Rating, "Rating") {
+    +id : Long
+    +user : User
+    +cocktail : Cocktail
+    +score : Integer
+}
+
+Table(Note, "Note") {
+    +id : Long
+    +user : User
+    +cocktail : Cocktail
+    +content : String
+}
+
+' Relaties
+User --> Role
+User --> UserProfile
+User --> Favorite
+User --> Rating
+User --> Note
+
+UserProfile --> UserPreference
+
+Favorite --> User
+Favorite --> Cocktail
+
+Rating --> User
+Rating --> Cocktail
+
+Note --> User
+Note --> Cocktail
+
+@enduml

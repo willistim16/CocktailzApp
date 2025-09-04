@@ -13,8 +13,8 @@ import java.util.Optional;
 public interface FavoriteRepository extends JpaRepository<Favorite, Long> {
 
     List<Favorite> findByUser(User user);
-    @Query("SELECT f FROM Favorite f LEFT JOIN FETCH f.notes WHERE f.id = :id")
 
+    @Query("SELECT f FROM Favorite f LEFT JOIN FETCH f.notes WHERE f.id = :id")
     Optional<Favorite> findByIdWithNotes(@Param("id") Long id);
 
     void deleteByUserAndCocktail(User user, Cocktail cocktail);

@@ -16,8 +16,6 @@ public interface CocktailRepository extends JpaRepository<Cocktail, Long> {
 
     Optional<Cocktail> findByName(String name);
 
-    Optional<Cocktail> findByIdDrink(String idDrink);
-
     @Query("SELECT DISTINCT c.category FROM Cocktail c WHERE c.category IS NOT NULL")
     List<String> findDistinctCategories();
 

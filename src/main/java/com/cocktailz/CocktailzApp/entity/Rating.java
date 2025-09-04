@@ -10,6 +10,7 @@ import lombok.*;
 @Entity
 @Getter
 @Setter
+@Table(name = "rating")
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -20,7 +21,7 @@ public class Rating {
     private Long id;
 
     @Min(1)
-    @Max(10)
+    @Max(5)
     private int score;
 
     @ManyToOne

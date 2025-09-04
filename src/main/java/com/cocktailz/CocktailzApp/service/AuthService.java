@@ -45,7 +45,8 @@ public class AuthService {
             throw new IllegalArgumentException("E-mailadres is al in gebruik.");
         }
 
-        User user = userService.registerUser(username, email, password);
+        String encodedPassword = passwordEncoder.encode(password);
+        User user = userService.registerUser(username, email, encodedPassword);
 
         String jwt = jwtUtil.generateToken(user);
         return new AuthResponse(
@@ -63,7 +64,9 @@ public class AuthService {
                     new UsernamePasswordAuthenticationToken(username, password)
             );
         } catch (Exception e) {
-            throw new RuntimeException("Ongeldige gebruikersnaam of wachtwoord");
+            throw new org.springframework.security.authentication.BadCredentialsException(
+                    "Ongeldige gebruikersnaam of wachtwoord"
+            );
         }
 
         User user = userService.findByUsername(username);

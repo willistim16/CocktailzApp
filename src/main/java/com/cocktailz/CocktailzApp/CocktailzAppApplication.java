@@ -13,22 +13,17 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @SpringBootApplication
-@EntityScan(basePackages = "com.cocktailz.cocktailzApp.entity")
+@EntityScan(basePackages = "com.cocktailz.CocktailzApp.entity")
 @EnableJpaRepositories(basePackages = "com.cocktailz.CocktailzApp.repository")
 public class CocktailzAppApplication {
-
-    private final CocktailImportService importService;
-
-    public CocktailzAppApplication(CocktailImportService importService) {
-        this.importService = importService;
-    }
 
     public static void main(String[] args) {
         SpringApplication.run(CocktailzAppApplication.class, args);
     }
 
+    // ✅ Run import on startup
     @Bean
-    public CommandLineRunner runImporter() {
+    public CommandLineRunner importCocktails(CocktailImportService importService) {
         return args -> {
             System.out.println("🔄 Checking for existing cocktails...");
             importService.importCocktailsIfEmpty();
@@ -36,6 +31,7 @@ public class CocktailzAppApplication {
         };
     }
 
+    // ✅ Test repository
     @Bean
     public CommandLineRunner testRepo(UserRepository userRepository) {
         return args -> {
@@ -43,6 +39,7 @@ public class CocktailzAppApplication {
         };
     }
 
+    // ✅ Create default users
     @Bean
     public CommandLineRunner initialUserSetup(UserRepository userRepository, RoleRepository roleRepository) {
         return args -> {
@@ -56,7 +53,7 @@ public class CocktailzAppApplication {
                 User user = new User();
                 user.setUsername("testuser");
                 user.setEmail("test@example.com");
-                user.setPassword("secret"); // TODO: replace with hashed password
+                user.setPassword("secret"); // ⚠️ hash later
                 user.setRole(userRole);
                 userRepository.save(user);
                 System.out.println("✅ testuser aangemaakt");
@@ -66,7 +63,7 @@ public class CocktailzAppApplication {
                 User admin = new User();
                 admin.setUsername("admin");
                 admin.setEmail("admin@example.com");
-                admin.setPassword("hashedPassword"); // TODO: replace with hashed password
+                admin.setPassword("hashedPassword"); // ⚠️ hash later
                 admin.setRole(adminRole);
                 userRepository.save(admin);
                 System.out.println("✅ admin aangemaakt");

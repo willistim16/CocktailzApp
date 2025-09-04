@@ -69,7 +69,7 @@ class AuthServiceTest {
         assertNotNull(response);
         assertEquals(username, response.getUsername());
         assertEquals(email, response.getEmail());
-        assertEquals("jwt-token", response.getToken());
+        assertEquals("jwt-token", response.getJwt());
         verify(userService, times(1)).registerUser(username, email, password);
     }
 
@@ -102,7 +102,7 @@ class AuthServiceTest {
         AuthResponse response = authService.login(username, password);
 
         assertNotNull(response);
-        assertEquals("jwt-token", response.getToken());
+        assertEquals("jwt-token", response.getJwt());
         assertEquals(username, response.getUsername());
     }
 

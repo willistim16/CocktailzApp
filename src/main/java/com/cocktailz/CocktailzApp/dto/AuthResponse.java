@@ -9,14 +9,14 @@ import lombok.Setter;
 
 public class AuthResponse {
     @JsonProperty("jwt")
-    private String token;
+    private String jwt;
     private Long id;
     private String username;
     private String email;
     private String profileImagePath;
 
-    public AuthResponse(String token, Long id, String username, String email, String profileImagePath) {
-        this.token = token;
+    public AuthResponse(String jwt, Long id, String username, String email, String profileImagePath) {
+        this.jwt = jwt;
         this.id = id;
         this.username = username;
         this.email = email;

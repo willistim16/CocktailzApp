@@ -45,7 +45,9 @@ public class Cocktail {
     @JsonManagedReference
     private List<Rating> ratings;
 
-    public Cocktail(String name, Boolean alcoholic, String instructions, String imageUrl) {
+    public Cocktail(Long id, String idDrink, String name, Boolean alcoholic, String instructions, String imageUrl) {
+        this.idDrink = idDrink;
+        this.id = id;
         this.name = name;
         this.alcoholic = alcoholic;
         this.instructions = instructions;

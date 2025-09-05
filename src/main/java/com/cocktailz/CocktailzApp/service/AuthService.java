@@ -59,15 +59,11 @@ public class AuthService {
     }
 
     public AuthResponse login(String username, String password) {
-        try {
+        System.out.println("DEBUG: login attempt username=" + username + ", password=" + password);
+
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(username, password)
             );
-        } catch (Exception e) {
-            throw new org.springframework.security.authentication.BadCredentialsException(
-                    "Ongeldige gebruikersnaam of wachtwoord"
-            );
-        }
 
         User user = userService.findByUsername(username);
 

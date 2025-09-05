@@ -7,6 +7,7 @@ import com.cocktailz.CocktailzApp.entity.User;
 import com.cocktailz.CocktailzApp.repository.PasswordResetTokenRepository;
 import com.cocktailz.CocktailzApp.repository.UserRepository;
 import com.cocktailz.CocktailzApp.service.EmailService;
+import com.cocktailz.CocktailzApp.service.PasswordResetService;
 import jakarta.transaction.Transactional;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -24,17 +25,39 @@ public class PasswordResetController {
     private final PasswordResetTokenRepository tokenRepository;
     private final EmailService emailService;
     private final PasswordEncoder passwordEncoder;
+    private final PasswordResetService passwordResetService;
 
     public PasswordResetController(UserRepository userRepository,
                                    PasswordResetTokenRepository tokenRepository,
                                    EmailService emailService,
-                                   PasswordEncoder passwordEncoder) {
+                                   PasswordEncoder passwordEncoder,
+                                   PasswordResetService passwordResetService) {
         this.userRepository = userRepository;
         this.tokenRepository = tokenRepository;
         this.emailService = emailService;
         this.passwordEncoder = passwordEncoder;
+        this.passwordResetService = passwordResetService;
     }
 
+    /**
+     * Generate a reset token without email (for testing users without email).
+     */
+    @GetMapping("/force-reset/{username}")
+    public ResponseEntity<String> forceReset(@PathVariable String username) {
+        return userRepository.findByUsername(username)
+                .map(user -> {
+                    passwordResetService.createAndSendResetToken(user);
+                    return ResponseEntity.ok(
+                            "Reset token generated for user: " + username + " (check console for token)"
+                    );
+                })
+                .orElse(ResponseEntity.badRequest()
+                        .body("User not found: " + username));
+    }
+
+    /**
+     * Request a password reset by email (normal flow).
+     */
     @PostMapping("/reset-password-request")
     public ResponseEntity<String> requestPasswordReset(@RequestBody ResetPasswordRequest request) {
         Optional<User> userOpt = userRepository.findByEmail(request.getEmail());
@@ -45,8 +68,8 @@ public class PasswordResetController {
         User user = userOpt.get();
 
         Optional<PasswordResetToken> existingToken = tokenRepository.findByUser(user);
-
         PasswordResetToken resetToken;
+
         if (existingToken.isPresent()) {
             resetToken = existingToken.get();
             resetToken.setToken(UUID.randomUUID().toString());
@@ -71,6 +94,9 @@ public class PasswordResetController {
         return ResponseEntity.ok("Reset link sent to email");
     }
 
+    /**
+     * Perform the actual password reset using a valid token.
+     */
     @Transactional
     @PostMapping("/reset-password")
     public ResponseEntity<String> resetPassword(@RequestBody ResetPasswordDto dto) {

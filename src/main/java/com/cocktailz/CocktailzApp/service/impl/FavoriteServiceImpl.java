@@ -9,6 +9,7 @@ import com.cocktailz.CocktailzApp.exception.DuplicateFavoriteException;
 import com.cocktailz.CocktailzApp.repository.CocktailRepository;
 import com.cocktailz.CocktailzApp.repository.FavoriteRepository;
 import com.cocktailz.CocktailzApp.service.FavoriteService;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,12 +31,14 @@ public class FavoriteServiceImpl implements FavoriteService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<FavoriteResponseDto> getFavoritesByUser(User user) {
         return favoriteRepository.findByUserWithNotes(user).stream()
                 .map(this::mapToDto)
                 .filter(Objects::nonNull)
                 .toList();
     }
+
 
     @Override
     public Optional<Favorite> getFavoriteById(Long id) {
@@ -54,20 +57,29 @@ public class FavoriteServiceImpl implements FavoriteService {
     }
 
     @Override
+    @Transactional
     public Favorite addFavoriteByCocktailId(User user, Long cocktailId) {
+        Optional<Favorite> existing = favoriteRepository.findByUserAndCocktail_Id(user, cocktailId);
+        if (existing.isPresent()) {
+            return existing.get();
+        }
+
         Cocktail cocktail = cocktailRepository.findById(cocktailId)
                 .orElseThrow(() -> new RuntimeException("Cocktail not found"));
-
-        boolean exists = favoriteRepository.existsByUserAndCocktail_Id(user, cocktailId);
-        if (exists) {
-            throw new DuplicateFavoriteException("Cocktail already exists in favorites");
-        }
 
         Favorite favorite = new Favorite();
         favorite.setUser(user);
         favorite.setCocktail(cocktail);
-        return favoriteRepository.save(favorite);
+
+        try {
+            return favoriteRepository.saveAndFlush(favorite);
+        } catch (DataIntegrityViolationException e) {
+            return favoriteRepository.findByUserAndCocktail_Id(user, cocktailId)
+                    .orElseThrow(() -> new RuntimeException("Favorite could not be created"));
+        }
     }
+
+
 
     @Override
     public FavoriteResponseDto mapToDto(Favorite favorite) {

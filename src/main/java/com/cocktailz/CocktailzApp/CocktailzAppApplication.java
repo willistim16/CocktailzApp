@@ -11,6 +11,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -50,7 +51,7 @@ public class CocktailzAppApplication {
     }
 
     @Bean
-    public CommandLineRunner initialUserSetup(UserRepository userRepository, RoleRepository roleRepository) {
+    public CommandLineRunner initialUserSetup(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder) {
         return args -> {
             Role userRole = roleRepository.findByName("ROLE_USER")
                     .orElseGet(() -> roleRepository.save(new Role(null, "ROLE_USER")));
@@ -58,24 +59,24 @@ public class CocktailzAppApplication {
             Role adminRole = roleRepository.findByName("ROLE_ADMIN")
                     .orElseGet(() -> roleRepository.save(new Role(null, "ROLE_ADMIN")));
 
-            if (!userRepository.existsByEmail("test@example.com")) {
+            if (!userRepository.existsByEmail("admin@example.com")) {
                 User user = new User();
-                user.setUsername("testuser");
-                user.setEmail("test@example.com");
-                user.setPassword("secret");
+                user.setUsername("admin_user");
+                user.setEmail("admin@example.com");
+                user.setPassword(passwordEncoder.encode("Admin123!"));
                 user.setRole(userRole);
                 userRepository.save(user);
-                System.out.println("✅ testuser aangemaakt");
+                System.out.println("✅ admin_user aangemaakt");
             }
 
-            if (!userRepository.existsByEmail("admin@example.com")) {
+            if (!userRepository.existsByEmail("test_user@example.com")) {
                 User admin = new User();
-                admin.setUsername("admin");
-                admin.setEmail("admin@example.com");
-                admin.setPassword("hashedPassword");
+                admin.setUsername("test1-user");
+                admin.setEmail("test_user@example.com");
+                admin.setPassword(passwordEncoder.encode("hashedPassword"));
                 admin.setRole(adminRole);
                 userRepository.save(admin);
-                System.out.println("✅ admin aangemaakt");
+                System.out.println("✅ test_user aangemaakt");
             }
         };
     }

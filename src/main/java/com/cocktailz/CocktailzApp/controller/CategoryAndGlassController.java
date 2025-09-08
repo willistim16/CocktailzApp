@@ -21,6 +21,7 @@ public class CategoryAndGlassController {
     public List<String> getAllCategories() {
         return cocktailService.getAllCategories();
     }
+
     @GetMapping("/glasses")
     @PreAuthorize("isAuthenticated()")
     public List<String> getAllGlasses() {

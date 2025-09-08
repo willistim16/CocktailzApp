@@ -24,6 +24,5 @@ public class CustomUserDetailsService implements UserDetailsService {
         System.out.println("DEBUG: username=" + username + ", dbPassword=" + user.getPassword());
         return user;
     }
-
 }
 

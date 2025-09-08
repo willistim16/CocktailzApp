@@ -1,7 +1,6 @@
 package com.cocktailz.CocktailzApp.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import java.util.ArrayList;
@@ -31,9 +30,8 @@ public class Favorite {
     private Cocktail cocktail;
 
     @OneToMany(mappedBy = "favorite", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference(value = "favorite-notes")
-    @Builder.Default
     private List<Note> notes = new ArrayList<>();
+
 
     @OneToOne(cascade = CascadeType.ALL)
     private Rating rating;

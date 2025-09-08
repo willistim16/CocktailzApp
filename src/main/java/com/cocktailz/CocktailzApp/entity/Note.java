@@ -19,7 +19,7 @@ public class Note {
     private String content;
 
     @ManyToOne
-    @JoinColumn(name = "favorite_id")
+    @JoinColumn(name = "favorite_id", nullable = false)
     @JsonBackReference(value = "favorite-notes")
     private Favorite favorite;
 

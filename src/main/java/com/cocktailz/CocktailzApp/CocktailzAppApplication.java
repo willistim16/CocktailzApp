@@ -59,25 +59,39 @@ public class CocktailzAppApplication {
             Role adminRole = roleRepository.findByName("ROLE_ADMIN")
                     .orElseGet(() -> roleRepository.save(new Role(null, "ROLE_ADMIN")));
 
+            Role moderatorRole = roleRepository.findByName("ROLE_MODERATOR")
+                    .orElseGet(() -> roleRepository.save(new Role(null, "ROLE_MODERATOR")));
+
             if (!userRepository.existsByEmail("admin@example.com")) {
-                User user = new User();
-                user.setUsername("admin_user");
-                user.setEmail("admin@example.com");
-                user.setPassword(passwordEncoder.encode("Admin123!"));
-                user.setRole(userRole);
-                userRepository.save(user);
+                User admin = new User();
+                admin.setUsername("admin_user");
+                admin.setEmail("admin@example.com");
+                admin.setPassword(passwordEncoder.encode("Admin123!"));
+                admin.setRole(adminRole);
+                userRepository.save(admin);
                 System.out.println("✅ admin_user aangemaakt");
             }
 
             if (!userRepository.existsByEmail("test_user@example.com")) {
-                User admin = new User();
-                admin.setUsername("test1-user");
-                admin.setEmail("test_user@example.com");
-                admin.setPassword(passwordEncoder.encode("hashedPassword"));
-                admin.setRole(adminRole);
-                userRepository.save(admin);
+                User user = new User();
+                user.setUsername("test_user");
+                user.setEmail("test_user@example.com");
+                user.setPassword(passwordEncoder.encode("User123!"));
+                user.setRole(userRole);
+                userRepository.save(user);
                 System.out.println("✅ test_user aangemaakt");
+            }
+
+            if (!userRepository.existsByEmail("moderator@example.com")) {
+                User moderator = new User();
+                moderator.setUsername("moderator_user");
+                moderator.setEmail("moderator@example.com");
+                moderator.setPassword(passwordEncoder.encode("Moderator123!"));
+                moderator.setRole(moderatorRole);
+                userRepository.save(moderator);
+                System.out.println("✅ moderator_user aangemaakt");
             }
         };
     }
+
 }
